@@ -28,10 +28,14 @@ class PepeGenerator:
         """Load and cache the Stable Diffusion model"""
         logger.info("Loading Stable Diffusion model...")
         
+        # Determine appropriate dtype based on device
+        device = "cuda" if torch.cuda.is_available() else "cpu"
+        torch_dtype = torch.float16 if device == "cuda" else torch.float32
+        
         pipe = StableDiffusionPipeline.from_pretrained(
             ModelConfig.BASE_MODEL,
-            torch_dtype=torch.float16,
-            safety_checker=None,
+            torch_dtype=torch_dtype,
+            safety_checker=None,  # Disabled for meme generation - users must comply with SD license
         )
         
         # Optimize scheduler
@@ -43,12 +47,16 @@ class PepeGenerator:
         pipe.enable_attention_slicing()
         pipe.enable_vae_slicing()
         
-        if torch.cuda.is_available():
+        if device == "cuda":
             pipe = pipe.to("cuda")
             try:
                 pipe.enable_xformers_memory_efficient_attention()
-            except:
-                pass
+            except ImportError:
+                logger.warning("xformers not available, using default attention")
+            except Exception as e:
+                logger.warning(f"Could not enable xformers: {e}")
+        else:
+            logger.info("Running on CPU - memory optimizations applied")
         
         logger.info("Model loaded successfully")
         return pipe
@@ -85,17 +93,16 @@ class PepeGenerator:
         
         logger.info(f"Generating: {enhanced_prompt[:50]}...")
         
-        # Generate image
-        with torch.autocast(self.device):
-            output = self.pipe(
-                prompt=enhanced_prompt,
-                negative_prompt=negative_prompt,
-                num_inference_steps=num_inference_steps,
-                guidance_scale=guidance_scale,
-                generator=generator,
-                width=width,
-                height=height,
-            )
+        # Generate image (removed autocast for CPU compatibility)
+        output = self.pipe(
+            prompt=enhanced_prompt,
+            negative_prompt=negative_prompt,
+            num_inference_steps=num_inference_steps,
+            guidance_scale=guidance_scale,
+            generator=generator,
+            width=width,
+            height=height,
+        )
         
         return output.images[0]
     

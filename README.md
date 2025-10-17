@@ -6,7 +6,7 @@ colorTo: blue
 sdk: streamlit
 sdk_version: 1.31.0
 app_file: src/app.py
-python_version: "3.10"
+python_version: "3.11"
 ---
 
 # 🐸 Pepe the Frog Meme Generator
@@ -53,6 +53,23 @@ pip install -r requirements.txt
 # Run
 streamlit run src/app.py
 ```
+
+---
+
+## 🚀 Deployment on Hugging Face Spaces
+
+This app is optimized for deployment on Hugging Face Spaces with the following fixes:
+
+- **CPU Compatibility**: Uses `torch.float32` on CPU deployments to avoid dtype errors
+- **Memory Optimization**: Automatically enables attention and VAE slicing
+- **Error Handling**: Proper exception handling for optional dependencies like xformers
+- **Docker Support**: Updated Dockerfile with Python 3.11 and necessary system packages
+
+### Deployment Fixes Applied:
+- Fixed mixed dtype errors when running on CPU-only environments
+- Removed autocast context that can cause tensor type mismatches
+- Added proper device detection and dtype selection
+- Enhanced error handling for optional GPU optimizations
 
 ---
 
