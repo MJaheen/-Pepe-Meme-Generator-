@@ -9,10 +9,8 @@ class ModelConfig:
     """Model configuration parameters"""
     
     # Model paths
-    #BASE_MODEL: str = "runwayml/stable-diffusion-v1-5"
-    #LORA_PATH: str = "./models/pepe_lora"
-    BASE_MODEL: str ="stabilityai/sdxl-turbo"
-    LORA_PATH: str = "MJaheen/pepe-lora-sdxl-turbo"
+    BASE_MODEL: str ="runwayml/stable-diffusion-v1-5"
+    LORA_PATH: str = "MJaheen/Pepe_The_Frog_model_v1_lora"
     
     # Default generation parameters
     DEFAULT_STEPS: int = 50
