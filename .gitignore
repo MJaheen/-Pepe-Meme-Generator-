@@ -1,0 +1,37 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+venv/
+env/
+
+# Models
+models/
+*.pth
+*.bin
+*.safetensors
+
+# Outputs
+outputs/
+cache/
+
+# IDE
+.vscode/
+.idea/
+.DS_Store
+
+# Logs
+*.log
+logs/
+
+# Environment
+.env
+
+extra/
+old_files/
+scripts/
+tests/
