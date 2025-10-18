@@ -255,6 +255,7 @@ def main():
         add_text = st.checkbox("Add Meme Text")
         top_text = st.text_input("Top Text") if add_text else ""
         bottom_text = st.text_input("Bottom Text") if add_text else ""
+        font_size = st.slider("Font Size", 10, 100, 40, 1)
     
     # Main area
     col1, col2 = st.columns([1, 1])
@@ -328,7 +329,7 @@ def main():
                 
                 # Add text if requested
                 if add_text and (top_text or bottom_text):
-                    image = processor.add_meme_text(image, top_text, bottom_text)
+                    image = processor.add_meme_text(image, top_text, bottom_text,font_size)
                 
                 # Always add MJ signature
                 image = processor.add_signature(image, signature="MJaheen", font_size=10, opacity=200)

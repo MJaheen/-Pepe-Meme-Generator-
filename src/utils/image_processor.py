@@ -70,11 +70,14 @@ class ImageProcessor:
         try:
             if font_path:
                 font = ImageFont.truetype(font_path, font_size)
+                print("there")
             else:
                 font = ImageFont.truetype("impact.ttf", font_size)
+                print("here")
         except:
             font = ImageFont.load_default()
             logger.warning("Using default font")
+            print("fair")
         
         # Add top text
         if top_text:
