@@ -288,8 +288,7 @@ def main():
         if st.session_state.generated_images:
             placeholder.image(
                 st.session_state.generated_images[-1],
-                #width='stretch'
-                use_column_width=True
+                width='stretch'
             )
         else:
             placeholder.info("Your meme will appear here...")
@@ -323,7 +322,7 @@ def main():
                     num_inference_steps=steps,
                     guidance_scale=guidance,
                     seed=seed,
-                    callback=progress_callback,
+                    progress_callback=progress_callback,
                     raw_prompt=use_raw_prompt
                 )
                 

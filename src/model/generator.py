@@ -204,7 +204,9 @@ class PepeGenerator:
         width: int = 512,
         height: int = 512,
         seed: Optional[int] = None,
-        progress_callback: Optional[Callable[[int, int], None]] = None
+        progress_callback: Optional[Callable[[int, int], None]] = None,
+        style: str = "default",
+        raw_prompt: bool = False
     ) -> Image:
         """
         Generate a Pepe meme image from a text prompt.
@@ -224,12 +226,18 @@ class PepeGenerator:
             height: Output image height in pixels (must be divisible by 8).
             seed: Random seed for reproducible generation.
             progress_callback: Optional callback(current_step, total_steps).
+            style: Style preset to apply ('default', 'happy', 'sad', 'smug', 'angry', 'thinking', 'surprised').
+            raw_prompt: If True, use prompt as-is without trigger words or style modifiers.
         
         Returns:
             PIL Image object containing the generated image.
         """
-        # Use the prompt as-is (style handling is done in app.py before calling generate)
-        enhanced_prompt = prompt
+        # Handle raw prompt mode - use prompt as-is if requested
+        if raw_prompt:
+            enhanced_prompt = prompt
+        else:
+            # Apply style preset if not in raw mode
+            enhanced_prompt = self._apply_style_preset(prompt, style) if style != "default" else prompt
 
         # Set default negative prompt
         if negative_prompt is None:
