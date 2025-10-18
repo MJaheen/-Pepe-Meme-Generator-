@@ -39,6 +39,16 @@ from model.generator import PepeGenerator
 from model.config import ModelConfig
 from utils.image_processor import ImageProcessor
 
+def supports_use_container_width():
+    """Check if the current Streamlit version supports use_container_width parameter."""
+    try:
+        import pkg_resources
+        streamlit_version = pkg_resources.get_distribution("streamlit").version
+        # use_container_width was introduced in Streamlit 1.16.0
+        return tuple(map(int, streamlit_version.split('.')[:2])) >= (1, 16)
+    except:
+        return False
+
 # Page config
 st.set_page_config(
     page_title="🐸 Pepe Meme Generator",
@@ -286,9 +296,14 @@ def main():
         placeholder = st.empty()
         
         if st.session_state.generated_images:
+            # Use use_container_width only if supported by Streamlit version
+            image_kwargs = {}
+            if supports_use_container_width():
+                image_kwargs['use_container_width'] = True
+
             placeholder.image(
                 st.session_state.generated_images[-1],
-                use_container_width=True
+                **image_kwargs
             )
         else:
             placeholder.info("Your meme will appear here...")
@@ -347,7 +362,12 @@ def main():
             
             # Show result
             if num_vars == 1:
-                placeholder.image(image, use_container_width=True)
+                # Use use_container_width only if supported by Streamlit version
+                image_kwargs = {}
+                if supports_use_container_width():
+                    image_kwargs['use_container_width'] = True
+
+                placeholder.image(image, **image_kwargs)
                 
                 # Download
                 buf = io.BytesIO()
@@ -363,7 +383,12 @@ def main():
                 cols = st.columns(min(num_vars, 2))
                 for idx, img in enumerate(st.session_state.generated_images[-num_vars:]):
                     with cols[idx % 2]:
-                        st.image(img, use_container_width=True)
+                        # Use use_container_width only if supported by Streamlit version
+                        image_kwargs = {}
+                        if supports_use_container_width():
+                            image_kwargs['use_container_width'] = True
+
+                        st.image(img, **image_kwargs)
         
         except Exception as e:
             st.error(f"Error: {str(e)}")
@@ -378,7 +403,12 @@ def main():
             cols = st.columns(4)
             for idx, img in enumerate(reversed(st.session_state.generated_images[-8:])):
                 with cols[idx % 4]:
-                    st.image(img, use_container_width=True)
+                    # Use use_container_width only if supported by Streamlit version
+                    image_kwargs = {}
+                    if supports_use_container_width():
+                        image_kwargs['use_container_width'] = True
+
+                    st.image(img, **image_kwargs)
     
     # Footer
     st.divider()
