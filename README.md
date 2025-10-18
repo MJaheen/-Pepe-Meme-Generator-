@@ -23,11 +23,19 @@ AI-powered meme generator using Stable Diffusion and LoRA fine-tuning.
 
 ## 🌟 Features
 
+- **Multiple Model Support**: Switch between fine-tuned LoRA and base models
+  - Pepe Fine-tuned (LoRA) - Custom trained model
+  - Base SD 1.5 - Standard Stable Diffusion
+  - Dreamlike Photoreal 2.0 - Photorealistic style
+  - Openjourney v4 - Artistic Midjourney-style
+- **Raw Prompt Mode**: Use exact prompts without automatic enhancements
 - Generate **custom Pepe memes** from text prompts  
 - Multiple **style presets** (happy, sad, smug, angry, etc.)  
-- **Add meme text overlays** and download results  
+- **Add meme text overlays** with automatic "MJ" signature
+- **Real-time progress tracking** for each generation step
 - Adjustable generation parameters (CFG, steps, seed, etc.)  
-- Batch generation and meme gallery system  
+- Batch generation and meme gallery system
+- **GPU & CPU compatible** with automatic optimization  
 
 ---
 
@@ -54,22 +62,6 @@ pip install -r requirements.txt
 streamlit run src/app.py
 ```
 
----
-
-## 🚀 Deployment on Hugging Face Spaces
-
-This app is optimized for deployment on Hugging Face Spaces with the following fixes:
-
-- **CPU Compatibility**: Uses `torch.float32` on CPU deployments to avoid dtype errors
-- **Memory Optimization**: Automatically enables attention and VAE slicing
-- **Error Handling**: Proper exception handling for optional dependencies like xformers
-- **Docker Support**: Updated Dockerfile with Python 3.11 and necessary system packages
-
-### Deployment Fixes Applied:
-- Fixed mixed dtype errors when running on CPU-only environments
-- Removed autocast context that can cause tensor type mismatches
-- Added proper device detection and dtype selection
-- Enhanced error handling for optional GPU optimizations
 
 ---
 

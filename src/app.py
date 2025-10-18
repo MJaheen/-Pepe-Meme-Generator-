@@ -41,12 +41,33 @@ def init_session_state():
         st.session_state.generated_images = []
     if 'generation_count' not in st.session_state:
         st.session_state.generation_count = 0
+    if 'current_model' not in st.session_state:
+        st.session_state.current_model = None
 
 
 @st.cache_resource
-def load_generator():
-    """Load and cache the generator"""
-    return PepeGenerator()
+def load_generator(model_name: str = "Pepe Fine-tuned (LoRA)"):
+    """Load and cache the generator based on selected model"""
+    config = ModelConfig()
+    model_config = config.AVAILABLE_MODELS[model_name]
+    
+    # Update config with selected model settings
+    config.BASE_MODEL = model_config['base']
+    config.LORA_PATH = model_config.get('lora')
+    config.USE_LORA = model_config.get('use_lora', False)
+    config.TRIGGER_WORD = model_config.get('trigger_word', 'pepe the frog')
+    
+    # LCM settings
+    config.USE_LCM = model_config.get('use_lcm', False)
+    config.LCM_LORA_PATH = model_config.get('lcm_lora')
+    
+    # Log which model is being loaded
+    import logging
+    logger = logging.getLogger(__name__)
+    logger.info(f"Loading model: {model_name}")
+    logger.info(f"Base: {config.BASE_MODEL}, LoRA: {config.USE_LORA}, LCM: {config.USE_LCM}")
+    
+    return PepeGenerator(config)
 
 
 def get_example_prompts():
@@ -64,14 +85,41 @@ def main():
     """Main application"""
     init_session_state()
     
+    # Sidebar (needs to be first to define selected_model)
+    st.sidebar.header("⚙️ Settings")
+    
+    # Model selection
+    st.sidebar.subheader("🤖 Model Selection")
+    config = ModelConfig()
+    available_models = list(config.AVAILABLE_MODELS.keys())
+    selected_model = st.sidebar.selectbox(
+        "Choose Model",
+        available_models,
+        index=0,
+        help="Select which model to use for generation"
+    )
+    
+    # Detect model change and auto-clear cache
+    if st.session_state.current_model is not None and st.session_state.current_model != selected_model:
+        st.cache_resource.clear()
+        st.sidebar.success(f"✅ Switched to: {selected_model}")
+    
+    # Update current model in session state
+    st.session_state.current_model = selected_model
+    
+    # Show LCM mode indicator if enabled
+    model_config = config.AVAILABLE_MODELS[selected_model]
+    if model_config.get('use_lcm', False):
+        st.sidebar.success("⚡ LCM Mode: 8x Faster! (6-8 steps optimal)")
+    
     # Header
     st.title("🐸 Pepe the Frog Meme Generator")
     st.markdown("Create custom Pepe memes using AI! Powered by Stable Diffusion.")
     
-    # Sidebar
-    st.sidebar.header("⚙️ Settings")
+    st.sidebar.divider()
     
     # Style selection
+    st.sidebar.subheader("🎨 Style & Prompt")
     style_options = {
         "Default": "default",
         "😊 Happy": "happy",
@@ -88,10 +136,28 @@ def main():
     )
     style = style_options[selected_style]
     
-    # Advanced settings
+    # Raw prompt mode
+    use_raw_prompt = st.sidebar.checkbox(
+        "Raw Prompt Mode",
+        help="Use your exact prompt without trigger words or style modifiers"
+    )
+    
+    # Advanced settings - adjust defaults based on LCM mode
+    is_lcm_mode = model_config.get('use_lcm', False)
+    
     with st.sidebar.expander("🔧 Advanced Settings"):
-        steps = st.slider("Steps", 20, 100, 50, 5)
-        guidance = st.slider("Guidance Scale", 1.0, 20.0, 7.5, 0.5)
+        if is_lcm_mode:
+            # LCM needs fewer steps and lower guidance
+            steps = st.slider("Steps", 4, 12, 6, 1, 
+                            help="⚡ LCM Mode: 4-8 steps optimal. Recommended: 6")
+            guidance = st.slider("Guidance Scale", 1.0, 2.5, 1.5, 0.1,
+                               help="⚡ LCM Mode: Lower guidance (1.0-2.0). Recommended: 1.5")
+        else:
+            # Normal mode settings
+            steps = st.slider("Steps", 15, 50, 25, 5, 
+                            help="Fewer steps = faster generation. 20-25 recommended for CPU")
+            guidance = st.slider("Guidance Scale", 1.0, 20.0, 7.5, 0.5)
+        
         use_seed = st.checkbox("Fixed Seed")
         seed = st.number_input("Seed", 0, 999999, 42) if use_seed else None
     
@@ -133,7 +199,7 @@ def main():
         if st.session_state.generated_images:
             placeholder.image(
                 st.session_state.generated_images[-1],
-                use_container_width=True
+                width='stretch'
             )
         else:
             placeholder.info("Your meme will appear here...")
@@ -141,40 +207,58 @@ def main():
     # Generate
     if generate and prompt:
         try:
-            generator = load_generator()
+            generator = load_generator(selected_model)
+            processor = ImageProcessor()
             
-            progress = st.progress(0)
-            status = st.empty()
+            # Overall progress for multiple images
+            overall_progress = st.progress(0)
+            overall_status = st.empty()
+            
+            # Progress for current image generation steps
+            step_progress = st.progress(0)
+            step_status = st.empty()
             
             for i in range(num_vars):
-                status.text(f"Generating {i+1}/{num_vars}...")
-                progress.progress((i + 1) / num_vars)
+                overall_status.text(f"Generating image {i+1}/{num_vars}...")
                 
-                # Generate
+                # Define callback for step-by-step progress
+                def progress_callback(current_step: int, total_steps: int):
+                    step_progress.progress(current_step / total_steps)
+                    step_status.text(f"Step {current_step}/{total_steps}")
+                
+                # Generate with progress callback
                 image = generator.generate(
                     prompt=prompt,
                     style=style,
                     num_inference_steps=steps,
                     guidance_scale=guidance,
-                    seed=seed
+                    seed=seed,
+                    callback=progress_callback,
+                    raw_prompt=use_raw_prompt
                 )
                 
                 # Add text if requested
                 if add_text and (top_text or bottom_text):
-                    processor = ImageProcessor()
                     image = processor.add_meme_text(image, top_text, bottom_text)
+                
+                # Always add MJ signature
+                image = processor.add_signature(image, signature="MJaheen", font_size=10, opacity=200)
                 
                 st.session_state.generated_images.append(image)
                 st.session_state.generation_count += 1
+                
+                # Update overall progress
+                overall_progress.progress((i + 1) / num_vars)
             
-            progress.empty()
-            status.empty()
-            
-            st.success("✅ Meme generated!")
+            # Clear progress indicators
+            overall_progress.empty()
+            overall_status.empty()
+            step_progress.empty()
+            step_status.empty()
             
             # Show result
             if num_vars == 1:
-                placeholder.image(image, use_container_width=True)
+                placeholder.image(image, width='stretch')
                 
                 # Download
                 buf = io.BytesIO()
@@ -190,7 +274,7 @@ def main():
                 cols = st.columns(min(num_vars, 2))
                 for idx, img in enumerate(st.session_state.generated_images[-num_vars:]):
                     with cols[idx % 2]:
-                        st.image(img, use_container_width=True)
+                        st.image(img, width='stretch')
         
         except Exception as e:
             st.error(f"Error: {str(e)}")
@@ -205,7 +289,7 @@ def main():
             cols = st.columns(4)
             for idx, img in enumerate(reversed(st.session_state.generated_images[-8:])):
                 with cols[idx % 4]:
-                    st.image(img, use_container_width=True)
+                    st.image(img, width='stretch')
     
     # Footer
     st.divider()
@@ -219,6 +303,30 @@ def main():
             st.session_state.generated_images = []
             st.session_state.generation_count = 0
             st.rerun()
+    
+    # Personal Information
+    st.divider()
+    st.markdown("### 👨‍💻 About the Engineer")
+    info_col1, info_col2 = st.columns(2)
+    
+    with info_col1:
+        st.markdown("""
+        **Contact Information:**
+        - 📧 Email: [Mohamed.a.jaheen@gmail.com](mailto:Mohamed.a.jaheen@gmail.com)
+        - 🔗 LinkedIn: [Mohamed Jaheen](https://www.linkedin.com/in/mohamedjaheen/)
+        """)
+    
+    with info_col2:
+        st.markdown("""
+        **About this App:**
+        - supported by worldquant university
+        - Built with Streamlit & Stable Diffusion
+        - Fine-tuned Pepe model available
+        - Open source and customizable
+        - MIT licences
+        """)
+    
+    st.caption("© 2025 - AI Meme Generator (Pepe the Frog) | Made with ❤️ using Python and MJ")
 
 
 if __name__ == "__main__":

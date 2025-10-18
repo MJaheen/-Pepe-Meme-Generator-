@@ -73,6 +73,87 @@ class ImageProcessor:
         draw.text(position, text, font=font, fill="white", anchor="mm")
     
     @staticmethod
+    def add_signature(
+        image: Image.Image,
+        signature: str = "MJ",
+        position: str = "bottom-right",
+        font_size: int = 20,
+        opacity: int = 180,
+    ) -> Image.Image:
+        """Add a small signature/watermark to the image
+        
+        Args:
+            image: Input image
+            signature: Text to add as signature
+            position: Position of signature (bottom-right, bottom-left, top-right, top-left)
+            font_size: Size of the signature font
+            opacity: Opacity of the signature (0-255)
+        """
+        img = image.copy()
+        
+        # Create a transparent overlay
+        overlay = Image.new('RGBA', img.size, (255, 255, 255, 0))
+        draw = ImageDraw.Draw(overlay)
+        
+        # Load font
+        try:
+            font = ImageFont.truetype("arial.ttf", font_size)
+        except:
+            try:
+                font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", font_size)
+            except:
+                font = ImageFont.load_default()
+                logger.warning("Using default font for signature")
+        
+        # Calculate text size and position
+        bbox = draw.textbbox((0, 0), signature, font=font)
+        text_width = bbox[2] - bbox[0]
+        text_height = bbox[3] - bbox[1]
+        
+        padding = 10
+        
+        if position == "bottom-right":
+            x = img.width - text_width - padding
+            y = img.height - text_height - padding
+        elif position == "bottom-left":
+            x = padding
+            y = img.height - text_height - padding
+        elif position == "top-right":
+            x = img.width - text_width - padding
+            y = padding
+        elif position == "top-left":
+            x = padding
+            y = padding
+        else:
+            x = img.width - text_width - padding
+            y = img.height - text_height - padding
+        
+        # Draw signature with semi-transparent background
+        bg_padding = 5
+        draw.rectangle(
+            [x - bg_padding, y - bg_padding, 
+             x + text_width + bg_padding, y + text_height + bg_padding],
+            fill=(0, 0, 0, opacity // 2)
+        )
+        
+        # Draw text
+        draw.text((x, y), signature, font=font, fill=(255, 255, 255, opacity))
+        
+        # Convert to RGB if needed and composite
+        if img.mode != 'RGBA':
+            img = img.convert('RGBA')
+        
+        img = Image.alpha_composite(img, overlay)
+        
+        # Convert back to RGB
+        if img.mode == 'RGBA':
+            rgb_img = Image.new('RGB', img.size, (255, 255, 255))
+            rgb_img.paste(img, mask=img.split()[3])
+            return rgb_img
+        
+        return img
+    
+    @staticmethod
     def enhance_image(
         image: Image.Image,
         sharpness: float = 1.2,
