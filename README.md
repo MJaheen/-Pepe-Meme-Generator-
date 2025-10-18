@@ -216,6 +216,7 @@ pepe_style_frog, crying with rain, emotional, dramatic lighting
 pepe-meme-generator/
 ├── src/                          # Source code
 │   ├── app.py                    # Main Streamlit application
+│   ├── Fonts/                    # Font files
 │   ├── model/                    # Model management
 │   │   ├── __init__.py
 │   │   ├── config.py             # Model configurations

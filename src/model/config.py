@@ -111,6 +111,7 @@ class ModelConfig:
     LORA_PATH: str = "MJaheen/Pepe_The_Frog_model_v1_lora"
     USE_LORA: bool = True
     TRIGGER_WORD: str = "pepe_style_frog"
+    FONT_PATH: str = "src/Fonts/impact.ttf"
     
     # LCM settings
     USE_LCM: bool = False
