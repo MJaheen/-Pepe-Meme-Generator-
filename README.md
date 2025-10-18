@@ -309,6 +309,8 @@ Contributions are welcome! Here's how you can help:
 - ⚡ Optimize performance
 - 🧪 Add tests
 
+---
+
 ### Development Setup
 
 ```bash
@@ -322,6 +324,7 @@ pip install -r requirements.txt
 # Make your changes
 # Test locally
 streamlit run src/app.py
+```
 
 # Submit pull request
 
