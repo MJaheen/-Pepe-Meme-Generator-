@@ -288,7 +288,7 @@ def main():
         if st.session_state.generated_images:
             placeholder.image(
                 st.session_state.generated_images[-1],
-                use_column_width=True
+                use_container_width=True
             )
         else:
             placeholder.info("Your meme will appear here...")
@@ -347,7 +347,7 @@ def main():
             
             # Show result
             if num_vars == 1:
-                placeholder.image(image, use_column_width=True)
+                placeholder.image(image, use_container_width=True)
                 
                 # Download
                 buf = io.BytesIO()
@@ -363,7 +363,7 @@ def main():
                 cols = st.columns(min(num_vars, 2))
                 for idx, img in enumerate(st.session_state.generated_images[-num_vars:]):
                     with cols[idx % 2]:
-                        st.image(img, use_column_width=True)
+                        st.image(img, use_container_width=True)
         
         except Exception as e:
             st.error(f"Error: {str(e)}")
@@ -378,7 +378,7 @@ def main():
             cols = st.columns(4)
             for idx, img in enumerate(reversed(st.session_state.generated_images[-8:])):
                 with cols[idx % 4]:
-                    st.image(img, use_column_width=True)
+                    st.image(img, use_container_width=True)
     
     # Footer
     st.divider()
