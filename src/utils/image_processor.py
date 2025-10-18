@@ -224,11 +224,7 @@ class ImageProcessor:
         
         Returns:
             Enhanced PIL Image (modified in-place)
-        
-        Example:
-            >>> image = Image.open("soft_image.png")
-            >>> enhanced = ImageProcessor.enhance_image(image, sharpness=1.3, contrast=1.2)
-            >>> enhanced.save("sharp_image.png")
+
         """
         
         # Sharpen

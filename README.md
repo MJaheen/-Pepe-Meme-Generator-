@@ -20,7 +20,7 @@ python_version: "3.11"
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Hugging Face](https://img.shields.io/badge/%F0%9F%A4%97-Hugging%20Face-orange)](https://huggingface.co/MJaheen/Pepe_The_Frog_model_v1_lora)
 
-[Demo](https://huggingface.co/spaces/MJaheen/Pepe-Meme-Generator) • [Documentation](./docs/) • [Training Guide](./docs/TRAINING.md) • [Report Bug](https://github.com/YOUR_USERNAME/pepe-meme-generator/issues)
+[Demo](https://huggingface.co/spaces/MJaheen/Pepe-Meme-Generator) • [Documentation](./docs/) • [Training Guide](./docs/TRAINING.md) • [Report Bug](https://github.com/MJaheen/-Pepe-Meme-Generator-/issues)
 
 </div>
 
@@ -33,12 +33,12 @@ python_version: "3.11"
 - [Installation](#-installation)
 - [Usage](#-usage)
 - [Model Information](#-model-information)
-- [Performance Optimization](#-performance-optimization)
 - [Project Structure](#-project-structure)
 - [Training](#-training-your-own-model)
 - [Contributing](#-contributing)
 - [License](#-license)
 - [Acknowledgments](#-acknowledgments)
+- [Contact & Support](#-contact--support)
 
 ---
 
@@ -227,8 +227,6 @@ pepe-meme-generator/
 │   └──TRAINING.md               # Model training guide
 ├── models/                       # Downloaded models (gitignored)
 ├── outputs/                      # Generated images (gitignored)
-├── scripts/                      # Utility scripts
-├── tests/                        # Test files
 ├── diffusion_model_finetuning.ipynb  # Training notebook
 ├── requirements.txt              # Python dependencies
 ├── .gitignore                    # Git ignore rules
@@ -288,7 +286,6 @@ Or check out the **[diffusion_model_finetuning.ipynb](./diffusion_model_finetuni
 - **Stable Diffusion 1.5** - Base diffusion model
 - **LoRA** - Low-Rank Adaptation for efficient fine-tuning
 - **LCM** - Latent Consistency Model for fast inference
-- **DPM Solver** - Fast diffusion sampling
 
 ### Image Processing
 - **Pillow (PIL)** - Image manipulation
@@ -315,7 +312,7 @@ Contributions are welcome! Here's how you can help:
 
 ```bash
 # Clone and setup
-git clone https://github.com/YOUR_USERNAME/pepe-meme-generator.git
+git clone https://https://github.com/MJaheen/-Pepe-Meme-Generator-
 cd pepe-meme-generator
 python -m venv venv
 source venv/bin/activate
@@ -339,9 +336,6 @@ streamlit run src/app.py
 
 **Issue**: Slow generation on CPU  
 **Solution**: Use "Pepe + LCM (FAST)" model with 6 steps
-
-**Issue**: Model not loading  
-**Solution**: Clear Streamlit cache with "Clear Cache & Reload" button
 
 **Issue**: Import errors  
 **Solution**: Reinstall dependencies: `pip install -r requirements.txt --force-reinstall`

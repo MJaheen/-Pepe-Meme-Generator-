@@ -57,11 +57,6 @@ class PepeGenerator:
         
         Args:
             config: ModelConfig instance. If None, uses default configuration.
-        
-        Example:
-            >>> config = ModelConfig()
-            >>> config.USE_LCM = True  # Enable fast generation
-            >>> generator = PepeGenerator(config)
         """
         self.config = config or ModelConfig()
         self.device = self._get_device(self.config.FORCE_CPU)

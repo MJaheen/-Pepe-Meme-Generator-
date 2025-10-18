@@ -51,12 +51,6 @@ This guide covers how to fine-tune your own Stable Diffusion model using LoRA (L
 - RAM: 32GB system RAM
 - Storage: 50GB+ SSD
 
-**Cloud Options**:
-- Google Colab (Free T4 GPU)
-- Kaggle Notebooks (Free GPU)
-- Lambda Labs
-- RunPod
-- Vast.ai
 
 ### Software Requirements
 
