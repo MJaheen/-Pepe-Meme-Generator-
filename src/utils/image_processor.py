@@ -1,4 +1,16 @@
-"""Image processing utilities"""
+"""Image Processing Utilities for Meme Creation.
+
+This module provides utilities for post-processing generated images:
+- Adding classic meme text with outlines
+- Adding signatures/watermarks
+- Enhancing image quality (sharpness, contrast)
+
+All methods are static and can be used without instantiation.
+The ImageProcessor class acts as a namespace for image manipulation functions.
+
+Author: MJaheen
+License: MIT
+"""
 
 from PIL import Image, ImageDraw, ImageFont, ImageEnhance
 from typing import Optional, Tuple
@@ -8,7 +20,18 @@ logger = logging.getLogger(__name__)
 
 
 class ImageProcessor:
-    """Handles image post-processing"""
+    """
+    Static utility class for image post-processing operations.
+    
+    This class provides methods for enhancing generated images with meme text,
+    signatures, and quality improvements. All methods are static and work with
+    PIL Image objects.
+    
+    Methods:
+        add_meme_text: Add top/bottom text in classic meme style
+        add_signature: Add watermark/signature to image
+        enhance_image: Apply sharpness and contrast enhancements
+    """
     
     @staticmethod
     def add_meme_text(
@@ -18,7 +41,27 @@ class ImageProcessor:
         font_size: int = 40,
         font_path: Optional[str] = None,
     ) -> Image.Image:
-        """Add classic meme text to image"""
+        """
+        Add classic Impact-font meme text with white text and black outline.
+        
+        Creates the traditional meme format with text at the top and/or bottom
+        of the image. Text is automatically converted to uppercase and rendered
+        with a thick black outline for readability on any background.
+        
+        Args:
+            image: Input PIL Image to add text to
+            top_text: Text to display at top of image (default: "")
+            bottom_text: Text to display at bottom of image (default: "")
+            font_size: Size of the font in points (default: 40)
+            font_path: Optional path to custom font file (default: uses Impact)
+        
+        Returns:
+            PIL Image with meme text overlay (copy of original, not modified in-place)
+        
+        Note:
+            Falls back to default font if Impact font is not found.
+            Text is centered horizontally automatically.
+        """
         
         img = image.copy()
         draw = ImageDraw.Draw(img)
@@ -159,7 +202,34 @@ class ImageProcessor:
         sharpness: float = 1.2,
         contrast: float = 1.1,
     ) -> Image.Image:
-        """Apply enhancement filters"""
+        """
+        Apply sharpness and contrast enhancements to improve image quality.
+        
+        This method applies PIL's ImageEnhance filters to make the image
+        crisper and more vibrant. Useful for post-processing AI-generated
+        images which can sometimes appear slightly soft.
+        
+        Args:
+            image: Input PIL Image to enhance
+            sharpness: Sharpness multiplier (default: 1.2)
+                - 0.0: Blurred
+                - 1.0: Original sharpness
+                - 2.0: Very sharp
+                Recommended range: 1.0-1.5
+            contrast: Contrast multiplier (default: 1.1)
+                - 0.0: Gray
+                - 1.0: Original contrast
+                - 2.0: High contrast
+                Recommended range: 1.0-1.3
+        
+        Returns:
+            Enhanced PIL Image (modified in-place)
+        
+        Example:
+            >>> image = Image.open("soft_image.png")
+            >>> enhanced = ImageProcessor.enhance_image(image, sharpness=1.3, contrast=1.2)
+            >>> enhanced.save("sharp_image.png")
+        """
         
         # Sharpen
         enhancer = ImageEnhance.Sharpness(image)

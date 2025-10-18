@@ -1,4 +1,33 @@
-"""Pepe the Frog Meme Generator - Main Application"""
+"""Pepe the Frog Meme Generator - Main Streamlit Application.
+
+This is the main entry point for the web application. It provides a user-friendly
+interface for generating Pepe memes using AI-powered Stable Diffusion models.
+
+The application features:
+- Model selection (multiple LoRA variants, LCM support)
+- Style presets and raw prompt mode
+- Advanced generation settings (steps, guidance, seed)
+- Text overlay capability for meme creation
+- Gallery system for viewing generated images
+- Download functionality
+- Progress tracking during generation
+
+Application Structure:
+    1. Page configuration and styling
+    2. Session state initialization
+    3. Model loading and caching
+    4. Sidebar UI (model selection, settings)
+    5. Main content area (prompt input, generation)
+    6. Results display and download
+    7. Gallery view
+
+Usage:
+    Run with: streamlit run src/app.py
+    Access at: http://localhost:8501
+
+Author: MJaheen
+License: MIT
+"""
 
 import streamlit as st
 from PIL import Image
@@ -36,7 +65,16 @@ st.markdown("""
 
 
 def init_session_state():
-    """Initialize session state"""
+    """
+    Initialize Streamlit session state variables.
+    
+    This function sets up persistent state across app reruns:
+    - generated_images: List of all generated images in current session
+    - generation_count: Counter for tracking total generations
+    - current_model: Currently selected model name for cache invalidation
+    
+    Session state persists across reruns but is reset when the page is refreshed.
+    """
     if 'generated_images' not in st.session_state:
         st.session_state.generated_images = []
     if 'generation_count' not in st.session_state:
@@ -47,7 +85,28 @@ def init_session_state():
 
 @st.cache_resource
 def load_generator(model_name: str = "Pepe Fine-tuned (LoRA)"):
-    """Load and cache the generator based on selected model"""
+    """
+    Load and cache the Stable Diffusion generator.
+    
+    This function loads a PepeGenerator instance configured with the selected
+    model. It's cached using @st.cache_resource to avoid reloading the model
+    on every interaction, which would be very slow.
+    
+    The cache is automatically invalidated when:
+    - The model_name parameter changes
+    - The user manually clears cache
+    
+    Args:
+        model_name: Name of the model from AVAILABLE_MODELS dict.
+            Examples: "Pepe Fine-tuned (LoRA)", "Pepe + LCM (FAST)"
+    
+    Returns:
+        PepeGenerator: Configured generator instance with loaded model.
+    
+    Note:
+        Model loading can take 30-60 seconds on first load as it downloads
+        weights from Hugging Face (~4GB for base model + LoRA).
+    """
     config = ModelConfig()
     model_config = config.AVAILABLE_MODELS[model_name]
     
@@ -71,7 +130,15 @@ def load_generator(model_name: str = "Pepe Fine-tuned (LoRA)"):
 
 
 def get_example_prompts():
-    """Return example prompts"""
+    """
+    Return a list of example prompts for inspiration.
+    
+    These prompts are designed to work well with the fine-tuned Pepe model
+    and demonstrate various styles, activities, and scenarios.
+    
+    Returns:
+        list: List of example prompt strings with trigger word and descriptions.
+    """
     return [
         "pepe the frog as a wizard casting spells",
         "pepe the frog coding on a laptop",
@@ -82,7 +149,29 @@ def get_example_prompts():
 
 
 def main():
-    """Main application"""
+    """
+    Main application function that builds and runs the Streamlit UI.
+    
+    This function orchestrates the entire application flow:
+    1. Initializes session state
+    2. Loads configuration and sets up sidebar controls
+    3. Handles model selection and switching
+    4. Processes user input (prompts, settings)
+    5. Generates images when requested
+    6. Displays results with download options
+    7. Shows gallery of previous generations
+    
+    The UI is organized into:
+    - Sidebar: Model selection, style presets, advanced settings
+    - Main area: Prompt input, generation button, results
+    - Bottom: Gallery view (expandable)
+    
+    Flow:
+        User selects model → Enters prompt → Adjusts settings → 
+        Clicks generate → Shows progress → Displays result → 
+        Offers download → Adds to gallery
+    """
+    # Initialize session state for persistent data across reruns
     init_session_state()
     
     # Sidebar (needs to be first to define selected_model)
@@ -199,7 +288,8 @@ def main():
         if st.session_state.generated_images:
             placeholder.image(
                 st.session_state.generated_images[-1],
-                width='stretch'
+                #width='stretch'
+                st.image(img, use_column_width=True)
             )
         else:
             placeholder.info("Your meme will appear here...")
