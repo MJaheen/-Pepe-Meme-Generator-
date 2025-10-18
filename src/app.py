@@ -289,7 +289,7 @@ def main():
             placeholder.image(
                 st.session_state.generated_images[-1],
                 #width='stretch'
-                st.image(img, use_column_width=True)
+                use_column_width=True
             )
         else:
             placeholder.info("Your meme will appear here...")
