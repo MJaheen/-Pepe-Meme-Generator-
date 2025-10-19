@@ -51,13 +51,7 @@ class ModelConfig:
         if self.AVAILABLE_MODELS is None:
             self.AVAILABLE_MODELS = {
                 # Primary fine-tuned model - Best quality, trained on Pepe dataset
-                "Pepe Fine-tuned (LoRA)": {
-                    "base": "runwayml/stable-diffusion-v1-5",
-                    "lora": "MJaheen/Pepe_The_Frog_model_v1_lora",
-                    "trigger_word": "pepe_style_frog",
-                    "use_lora": True,
-                    "use_lcm": False
-                },
+
                 "Pepe + LCM (FAST)": {
                     "base": "runwayml/stable-diffusion-v1-5",
                     "lora": "MJaheen/Pepe_The_Frog_model_v1_lora",
@@ -65,6 +59,13 @@ class ModelConfig:
                     "trigger_word": "pepe_style_frog",
                     "use_lora": True,
                     "use_lcm": True
+                },
+                "Pepe Fine-tuned (LoRA)": {
+                    "base": "runwayml/stable-diffusion-v1-5",
+                    "lora": "MJaheen/Pepe_The_Frog_model_v1_lora",
+                    "trigger_word": "pepe_style_frog",
+                    "use_lora": True,
+                    "use_lcm": False
                 },
                 "Base SD 1.5": {
                     "base": "runwayml/stable-diffusion-v1-5",
