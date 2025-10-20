@@ -129,6 +129,76 @@ def load_generator(model_name: str = "Pepe Fine-tuned (LoRA)"):
     return PepeGenerator(config)
 
 
+def debug_generation_inputs(timestamp, prompt, style, steps, guidance, seed, model, top_text, bottom_text, num_vars, raw_prompt=False, use_seed=False, add_text=False, font_size=40, font_path=""):
+    """
+    Debug function to print all generation inputs when 'Generate Meme' is pressed.
+
+    Args:
+        timestamp: Current timestamp when generation started
+        prompt: The user's text prompt
+        style: Selected style preset
+        steps: Number of inference steps
+        guidance: Guidance scale value
+        seed: Random seed (if used)
+        model: Selected model name
+        top_text: Top meme text
+        bottom_text: Bottom meme text
+        num_vars: Number of variations to generate
+        raw_prompt: Whether raw prompt mode is enabled
+        use_seed: Whether fixed seed is enabled
+        add_text: Whether text overlay is enabled
+        font_size: Font size for text overlay
+        font_path: Path to font file
+    """
+    print("=" * 80)
+    print("🎨 MEME GENERATION DEBUG INFO")
+    print("=" * 80)
+    print(f"⏰ Timestamp: {timestamp}")
+    print(f"🤖 Model: {model}")
+    print(f"📝 Prompt: {prompt}")
+    print(f"🎨 Style: {style}")
+    print(f"⚙️  Steps: {steps}")
+    print(f"🎯 Guidance Scale: {guidance}")
+    print(f"🔢 Seed Enabled: {use_seed}")
+    if use_seed:
+        print(f"🎲 Seed Value: {seed}")
+    print(f"🔄 Variations: {num_vars}")
+    print(f"📝 Raw Prompt Mode: {raw_prompt}")
+    print(f"💬 Text Overlay: {add_text}")
+    if add_text:
+        print(f"📝 Top Text: '{top_text}'")
+        print(f"📝 Bottom Text: '{bottom_text}'")
+        print(f"🔤 Font Size: {font_size}")
+        print(f"📁 Font Path: {font_path}")
+    print("=" * 80)
+    print("🚀 Starting image generation...")
+    print("=" * 80)
+    return datetime.now()  # Return start time for timing calculation
+
+
+def debug_generation_complete(start_time, num_vars):
+    """
+    Debug function to print generation completion time and performance metrics.
+
+    Args:
+        start_time: The datetime when generation started
+        num_vars: Number of variations generated
+    """
+    end_time = datetime.now()
+    total_time = end_time - start_time
+    total_seconds = total_time.total_seconds()
+
+    print("=" * 80)
+    print("✅ MEME GENERATION COMPLETED")
+    print("=" * 80)
+    print(f"⏱️  Total Time: {total_seconds:.2f} seconds")
+    print(f"🖼️  Images Generated: {num_vars}")
+    if num_vars > 1:
+        print(f"⏱️  Average Time per Image: {total_seconds/num_vars:.2f} seconds")
+    print(f"🏁 Finished at: {end_time.strftime('%Y-%m-%d %H:%M:%S')}")
+    print("=" * 80)
+
+
 def get_example_prompts():
     """
     Return a list of example prompts for inspiration.
@@ -297,6 +367,25 @@ def main():
     
     # Generate
     if generate and prompt:
+        # Debug: Print all generation inputs and get start time
+        start_time = debug_generation_inputs(
+            timestamp=datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+            prompt=prompt,
+            style=style,
+            steps=steps,
+            guidance=guidance,
+            seed=seed,
+            model=selected_model,
+            top_text=top_text,
+            bottom_text=bottom_text,
+            num_vars=num_vars,
+            raw_prompt=use_raw_prompt,
+            use_seed=use_seed,
+            add_text=add_text,
+            font_size=font_size,
+            font_path=font_path
+        )
+
         try:
             generator = load_generator(selected_model)
             processor = ImageProcessor()
@@ -346,6 +435,9 @@ def main():
             overall_status.empty()
             step_progress.empty()
             step_status.empty()
+            
+            # Debug: Print completion time and performance metrics
+            debug_generation_complete(start_time, num_vars)
             
             # Show result
             if num_vars == 1:
